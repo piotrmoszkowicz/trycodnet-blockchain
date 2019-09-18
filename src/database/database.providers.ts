@@ -1,4 +1,6 @@
 import { Sequelize } from "sequelize-typescript";
+
+import { Transaction } from "../transaction/transaction.entity";
 import { Wallet } from "../wallet/wallet.entity";
 
 export const databaseProviders = [
@@ -13,7 +15,7 @@ export const databaseProviders = [
         password: process.env.DATABASE_PASSWORD || "12345",
         database: process.env.DATABASE_NAME || "trycodnet-blockchain",
       });
-      sequelize.addModels([Wallet]);
+      sequelize.addModels([Transaction, Wallet]);
       await sequelize.sync();
       return sequelize;
     },

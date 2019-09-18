@@ -8,6 +8,7 @@ import { walletProviders } from "./wallet.providers";
 
 @Module({
   imports: [DatabaseModule],
+  exports: [WalletService],
   controllers: [WalletController],
   providers: [WalletService, ...walletProviders],
 })

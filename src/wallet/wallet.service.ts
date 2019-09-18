@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { Wallet } from "./wallet.entity";
+
 import { CreateWalletDto } from "./dto/create-wallet.dto";
+import { Wallet } from "./wallet.entity";
 
 @Injectable()
 export class WalletService {
@@ -15,6 +16,14 @@ export class WalletService {
     wallet.webhookUrl = createWalletDto.webhookUrl;
 
     return wallet.save();
+  }
+
+  async findByWalletAddress(address: string): Promise<Wallet> {
+    return this.walletRepository.findOne({
+      where: {
+        address,
+      },
+    });
   }
 
   async findAll(): Promise<Wallet[]> {

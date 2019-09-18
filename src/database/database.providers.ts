@@ -11,7 +11,7 @@ export const databaseProviders = [
         port: 3306,
         username: process.env.DATABASE_USERNAME || "root",
         password: process.env.DATABASE_PASSWORD || "12345",
-        database: process.env.DATABASE_NAME || "trycodnet",
+        database: process.env.DATABASE_NAME || "trycodnet-blockchain",
       });
       sequelize.addModels([Wallet]);
       await sequelize.sync();

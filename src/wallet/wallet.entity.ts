@@ -18,7 +18,10 @@ export class Wallet extends Model<Wallet> {
   public id: number;
 
   @Unique
-  @Length({ min: 35, max: 35 })
+  @Length({ min: 33, max: 35 })
   @Column
   public address: string;
+
+  @Column
+  public webhookUrl: string;
 }

@@ -9,7 +9,7 @@ interface IBlockCheckerAdd {
 }
 
 interface IBlockCheckerUpdate {
-  transactionId: number;
+  transactionId: string;
   trackedWalletId: string;
 }
 

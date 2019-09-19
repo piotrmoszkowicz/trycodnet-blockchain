@@ -21,7 +21,7 @@ export class Transaction extends Model<Transaction> {
 
   @Unique
   @Column
-  public transactionId: number;
+  public transactionId: string;
 
   @ForeignKey(() => Wallet)
   @Column

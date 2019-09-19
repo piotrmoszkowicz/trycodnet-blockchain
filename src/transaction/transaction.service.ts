@@ -9,7 +9,7 @@ export class TransactionService {
     private readonly transactionService: typeof Transaction,
   ) {}
 
-  async create(transactionId: number, walletId: number): Promise<Transaction> {
+  async create(transactionId: string, walletId: number): Promise<Transaction> {
     const transaction = new Transaction();
     transaction.transactionId = transactionId;
     transaction.walletId = walletId;

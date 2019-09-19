@@ -1,8 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { InjectEventEmitter } from "nest-emitter";
 
-import * as fs from "fs";
-import { Socket } from "blockchain.info";
+import { blockexplorer, Socket } from "blockchain.info";
 
 import axiosWrapper from "../axiosWrapper";
 
@@ -60,14 +59,15 @@ export class BlockCheckerService implements OnModuleInit {
 
   async onBlockHandler(data: IBlockResponse) {
     this.logger.debug("OnBlock called");
+    this.logger.debug(`Hash: ${data.hash}`);
     const transactionsToLookFor = await this.transactionService.findAll();
+    const blockData = await blockexplorer.getBlock(data.hash);
     const arrayOfTransactionToLookFrom = transactionsToLookFor.map(
       transaction => transaction.transactionId,
     );
-    const transactionsToUpdate = data.txIndexes.filter(
-      index => -1 !== arrayOfTransactionToLookFrom.indexOf(index),
-    );
-    this.logger.debug(transactionsToUpdate);
+    const transactionsToUpdate = blockData.tx.filter(
+      transaction => -1 !== arrayOfTransactionToLookFrom.indexOf(transaction.hash),
+    ).map(transaction => transaction.hash);
 
     for (const transactionId of transactionsToUpdate) {
       const transaction = transactionsToLookFor.filter(
@@ -79,8 +79,6 @@ export class BlockCheckerService implements OnModuleInit {
       };
       await this.callWebook(transaction.wallet.webhookUrl, response);
     }
-
-    fs.writeFileSync("./blockHandler.txt", JSON.stringify(data));
   }
 
   async onTransactionHandler(data: any) {
@@ -111,7 +109,7 @@ export class BlockCheckerService implements OnModuleInit {
           (acc, input) => acc + input.prev_out.value,
           0,
         ),
-        transactionId: data.tx_index,
+        transactionId: data.hash,
         numberOfConfirmations: 0,
         transactionType,
         trackedWalletId: lookedWalletsInThisTransaction[0],
@@ -121,11 +119,9 @@ export class BlockCheckerService implements OnModuleInit {
         lookedWalletsInThisTransaction[0],
       );
 
-      await this.transactionService.create(data.tx_index, wallet.id);
+      await this.transactionService.create(data.hash, wallet.id);
 
       await this.callWebook(wallet.webhookUrl, response);
-
-      fs.writeFileSync("./transactionHandler.txt", JSON.stringify(data));
     } catch (err) {
       this.logger.error(err.message, err.trace);
     }

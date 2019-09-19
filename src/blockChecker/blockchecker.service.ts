@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { InjectEventEmitter } from "nest-emitter";
 
-import { blockexplorer, Socket } from "blockchain.info";
+import { Socket } from "blockchain.info";
 
 import axiosWrapper from "../axiosWrapper";
 
@@ -61,21 +61,11 @@ export class BlockCheckerService implements OnModuleInit {
     this.logger.debug("OnBlock called");
     this.logger.debug(`Hash: ${data.hash}`);
     const transactionsToLookFor = await this.transactionService.findAll();
-    const blockData = await blockexplorer.getBlock(data.hash);
-    const arrayOfTransactionToLookFrom = transactionsToLookFor.map(
-      transaction => transaction.transactionId,
-    );
-    const transactionsToUpdate = blockData.tx.filter(
-      transaction => -1 !== arrayOfTransactionToLookFrom.indexOf(transaction.hash),
-    ).map(transaction => transaction.hash);
 
-    for (const transactionId of transactionsToUpdate) {
-      const transaction = transactionsToLookFor.filter(
-        trans => trans.transactionId === transactionId,
-      )[0];
+    for (const transaction of transactionsToLookFor) {
       const response = {
         trackedWalletId: transaction.wallet.address,
-        transactionId,
+        transactionId: transaction.transactionId,
       };
       await this.callWebook(transaction.wallet.webhookUrl, response);
     }
